@@ -1,0 +1,76 @@
+[
+  {
+    "id": "claude-code",
+    "name": "Claude Code",
+    "discordAppId": "1555288438880862248",
+    "image": "claude-code",
+    "match": {
+      "win32": [
+        { "process": "claude.exe", "notPath": "WindowsApps\\\\Claude_|AnthropicClaude" },
+        { "process": "node.exe", "cmdline": "@anthropic-ai[\\\\/]claude-code" }
+      ],
+      "darwin": [
+        { "process": "claude", "notPath": "\\.app/Contents/MacOS/" },
+        { "process": "node", "cmdline": "@anthropic-ai/claude-code" }
+      ],
+      "linux": [
+        { "process": "claude" },
+        { "process": "node", "cmdline": "@anthropic-ai/claude-code" }
+      ]
+    }
+  },
+  {
+    "id": "codex",
+    "name": "Codex",
+    "discordAppId": "1554939231288299530",
+    "image": "codex",
+    "match": {
+      "win32": [{ "process": "codex.exe" }],
+      "darwin": [{ "process": "codex" }],
+      "linux": [{ "process": "codex" }]
+    }
+  },
+  {
+    "id": "cursor",
+    "name": "Cursor",
+    "discordAppId": "1554939288314183732",
+    "image": "cursor",
+    "match": {
+      "win32": [{ "process": "cursor.exe" }],
+      "darwin": [{ "path": "/Cursor\\.app/Contents/MacOS/[^/]+$" }],
+      "linux": [{ "process": "cursor" }]
+    }
+  },
+  {
+    "id": "antigravity",
+    "name": "Antigravity",
+    "discordAppId": "1518643441880269031",
+    "image": "antigravity",
+    "match": {
+      "win32": [{ "process": "antigravity.exe" }],
+      "darwin": [{ "path": "/Antigravity\\.app/Contents/MacOS/[^/]+$" }],
+      "linux": [{ "process": "antigravity" }]
+    }
+  },
+  {
+    "id": "windsurf",
+    "name": "Windsurf",
+    "discordAppId": "1554939359164239982",
+    "image": "windsurf",
+    "match": {
+      "win32": [{ "process": "windsurf.exe" }],
+      "darwin": [{ "path": "/Windsurf\\.app/Contents/MacOS/[^/]+$" }],
+      "linux": [{ "process": "windsurf" }]
+    }
+  },
+  {
+    "id": "claude",
+    "name": "Claude",
+    "discordAppId": "1555288438880862248",
+    "image": "claude",
+    "match": {
+      "win32": [{ "process": "claude.exe", "path": "WindowsApps\\\\Claude_|AnthropicClaude" }],
+      "darwin": [{ "path": "/Claude\\.app/Contents/MacOS/[^/]+$" }]
+    }
+  }
+]

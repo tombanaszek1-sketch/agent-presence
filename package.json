@@ -1,0 +1,13 @@
+{
+  "name": "agent-presence",
+  "version": "0.1.0",
+  "description": "Show the AI coding agent you are working in as your Discord activity: Claude Code, Codex, Cursor, Antigravity, Windsurf.",
+  "type": "module",
+  "bin": { "agent-presence": "bin/agent-presence.js" },
+  "files": ["bin", "src"],
+  "engines": { "node": ">=20" },
+  "dependencies": { "@xhayper/discord-rpc": "^1.5.1" },
+  "keywords": ["discord", "rich-presence", "claude-code", "codex", "cursor", "antigravity", "windsurf", "ai", "agent"],
+  "repository": { "type": "git", "url": "git+https://github.com/tombanaszek1-sketch/agent-presence.git" },
+  "license": "MIT"
+}
