@@ -1,5 +1,6 @@
 #!/usr/bin/env node
 import { loadApps, loadConfig } from "../src/config.js";
+import { runDaemon } from "../src/daemon.js";
 import { listProcesses, matchApps, processNames } from "../src/detector.js";
 import { selectApp } from "../src/selector.js";
 
@@ -12,7 +13,7 @@ Commands:
   detect      Scan once and print the detected tools
   start       Run in the foreground (used by autostart)`;
 
-const commands = { detect };
+const commands = { detect, start: runDaemon };
 
 const [command] = process.argv.slice(2);
 const handler = commands[command];
