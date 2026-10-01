@@ -23,9 +23,10 @@ export class Presence {
       this.#currentId = app.id;
       this.#since = Date.now();
     }
-    if (this.#client && this.#appId === app.discordAppId && this.#shownId === app.id) return;
+    const connected = this.#client?.isConnected === true;
+    if (connected && this.#appId === app.discordAppId && this.#shownId === app.id) return;
     try {
-      if (!this.#client || this.#appId !== app.discordAppId) await this.#connect(app.discordAppId);
+      if (!connected || this.#appId !== app.discordAppId) await this.#connect(app.discordAppId);
       await this.#client.user.setActivity({
         details: app.name,
         largeImageKey: `${IMAGE_BASE}${app.image}.png`,

@@ -1,4 +1,4 @@
-import { execFile } from "node:child_process";
+import { execFile, spawn } from "node:child_process";
 import path from "node:path";
 import { promisify } from "node:util";
 
@@ -18,11 +18,7 @@ async function listWindows(names) {
   // Filtering in WQL keeps the CIM query fast and the JSON small.
   const filter = names.map((name) => `Name='${name.replace(/'/g, "")}'`).join(" OR ");
   const query = filter ? `Get-CimInstance Win32_Process -Filter "${filter}"` : "Get-CimInstance Win32_Process";
-  const script = `${query} | Select-Object Name,ExecutablePath,CommandLine | ConvertTo-Json -Compress`;
-  const { stdout } = await run("powershell.exe", ["-NoProfile", "-NonInteractive", "-Command", script], {
-    windowsHide: true,
-    maxBuffer: MAX_BUFFER,
-  });
+  const stdout = await powershell(`${query} | Select-Object Name,ExecutablePath,CommandLine | ConvertTo-Json -Compress`);
   if (!stdout.trim()) return [];
   const data = JSON.parse(stdout);
   return (Array.isArray(data) ? data : [data]).map((p) => ({
@@ -30,6 +26,65 @@ async function listWindows(names) {
     path: p.ExecutablePath ?? "",
     cmdline: p.CommandLine ?? "",
   }));
+}
+
+// Starting powershell.exe costs ~200 ms, the query itself ~40 ms. One long-lived shell
+// that reads commands from stdin makes frequent polling cheap.
+let shell = null;
+const END_MARKER = "__agent_presence_end__";
+
+function powershell(command) {
+  if (!shell) shell = startShell();
+  const current = shell;
+  const result = current.queue.then(
+    () =>
+      new Promise((resolve, reject) => {
+        current.pending = { resolve, reject, output: "" };
+        keepAlive(current, true);
+        current.child.stdin.write(`${command}; '${END_MARKER}'\n`);
+      }),
+  );
+  result.finally(() => keepAlive(current, false)).catch(() => {});
+  current.queue = result.catch(() => {});
+  return result;
+}
+
+function startShell() {
+  const child = spawn("powershell.exe", ["-NoProfile", "-NonInteractive", "-Command", "-"], {
+    windowsHide: true,
+    stdio: ["pipe", "pipe", "ignore"],
+  });
+  const state = { child, queue: Promise.resolve(), pending: null };
+  child.stdout.setEncoding("utf8");
+  child.stdout.on("data", (chunk) => {
+    if (!state.pending) return;
+    state.pending.output += chunk;
+    const end = state.pending.output.indexOf(END_MARKER);
+    if (end === -1) return;
+    const { resolve, output } = state.pending;
+    state.pending = null;
+    resolve(output.slice(0, end));
+  });
+  child.on("exit", () => {
+    if (shell === state) shell = null;
+    state.pending?.reject(new Error("PowerShell exited"));
+    state.pending = null;
+  });
+  child.on("error", (err) => {
+    if (shell === state) shell = null;
+    state.pending?.reject(err);
+    state.pending = null;
+  });
+  keepAlive(state, false);
+  return state;
+}
+
+// An idle shell must not keep one-shot commands such as "detect" from exiting.
+function keepAlive({ child }, on) {
+  for (const handle of [child, child.stdout, child.stdin]) {
+    if (on) handle.ref?.();
+    else handle.unref?.();
+  }
 }
 
 async function listUnix(platform) {

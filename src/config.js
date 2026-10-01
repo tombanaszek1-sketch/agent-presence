@@ -23,7 +23,7 @@ export function loadConfig(log) {
   return {
     disabled: Array.isArray(user.disabled) ? user.disabled : [],
     priority: Array.isArray(user.priority) ? user.priority : [],
-    pollSeconds: Number.isFinite(user.pollSeconds) && user.pollSeconds >= 5 ? user.pollSeconds : 15,
+    pollSeconds: Number.isFinite(user.pollSeconds) && user.pollSeconds >= 2 ? user.pollSeconds : 3,
   };
 }
 

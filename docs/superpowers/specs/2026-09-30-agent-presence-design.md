@@ -78,7 +78,7 @@ need to be uploaded per application.
 
 ### Detector
 
-Every 15 s:
+Every 3 s (Windows keeps one PowerShell process open and sends it a query per tick):
 - Windows: `Get-CimInstance Win32_Process | Select Name, CommandLine` via `powershell.exe
   -NoProfile`, output as JSON.
 - macOS / Linux: `ps -axo comm=,args=`.
@@ -107,7 +107,7 @@ from `config.priority` if set, otherwise registry order. Disabled IDs are ignore
 Optional file `~/.config/agent-presence/config.json` (Windows: `%APPDATA%\agent-presence\`):
 
 ```json
-{ "disabled": ["claude"], "priority": ["cursor", "claude-code"], "pollSeconds": 15 }
+{ "disabled": ["claude"], "priority": ["cursor", "claude-code"], "pollSeconds": 3 }
 ```
 
 Unknown keys are ignored; invalid JSON is logged and defaults are used.

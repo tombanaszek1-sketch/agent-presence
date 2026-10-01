@@ -4,7 +4,7 @@ Show the AI coding tool you are working in as your Discord activity. Your friend
 "Claude Code", "Codex" or "Cursor" next to your name, with the tool's logo and how long
 you have been at it.
 
-It runs in the background, checks every 15 seconds which tools are open and talks only
+It runs in the background, checks every 3 seconds which tools are open and talks only
 to the Discord desktop app on your machine.
 
 ## Setup with your agent
@@ -75,13 +75,13 @@ Optional. Create `config.json` here:
 {
   "disabled": ["claude"],
   "priority": ["cursor", "claude-code"],
-  "pollSeconds": 15
+  "pollSeconds": 3
 }
 ```
 
 - `disabled`: tool ids that are never shown
 - `priority`: tool ids that come first, in this order; the rest keep their default order
-- `pollSeconds`: how often to scan, at least 5
+- `pollSeconds`: how often to scan in seconds, at least 2
 
 Tool ids: `claude-code`, `codex`, `cursor`, `antigravity`, `windsurf`, `claude`.
 The log file `agent-presence.log` sits in the same folder.
