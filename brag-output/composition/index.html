@@ -1,0 +1,290 @@
+<!doctype html>
+<html>
+<head>
+<meta charset="utf-8">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;600;700&display=block" rel="stylesheet">
+<style>
+  :root {
+    --bg: #0d0e12; --d1: #1e1f22; --d2: #2b2d31; --d3: #313338; --d4: #383a40;
+    --text: #f2f3f5; --muted: #949ba4; --blurple: #5865f2; --green: #23a55a; --orange: #d97757;
+  }
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  html, body { width: 1920px; height: 1080px; overflow: hidden; background: var(--bg); font-family: Inter, sans-serif; color: var(--text); }
+  #stage { position: absolute; inset: 0; }
+  #glow { position: absolute; inset: -200px; background:
+    radial-gradient(900px 600px at 30% 35%, rgba(88,101,242,.22), transparent 70%),
+    radial-gradient(800px 600px at 78% 70%, rgba(217,119,87,.14), transparent 70%); }
+  .scene { position: absolute; inset: 0; opacity: 0; }
+  .abs { position: absolute; }
+
+  /* Scene 1: member list */
+  #list { left: 200px; top: 190px; width: 700px; background: var(--d2); border-radius: 24px; padding: 34px 30px; box-shadow: 0 40px 120px rgba(0,0,0,.5); }
+  #list h4 { font-size: 22px; letter-spacing: .08em; color: var(--muted); font-weight: 700; margin: 0 0 22px 14px; }
+  .row { display: flex; align-items: center; gap: 22px; height: 108px; padding: 0 16px; border-radius: 16px; position: relative; }
+  .av { width: 68px; height: 68px; border-radius: 50%; display: grid; place-items: center; font-weight: 800; font-size: 28px; position: relative; flex: none; }
+  .av::after { content: ""; position: absolute; right: -3px; bottom: -3px; width: 22px; height: 22px; border-radius: 50%; background: var(--green); border: 5px solid var(--d2); }
+  .who { font-size: 31px; font-weight: 700; }
+  .act { font-size: 24px; color: var(--muted); margin-top: 4px; }
+  .act b { color: var(--text); font-weight: 600; }
+  .row img.badge { width: 58px; height: 58px; border-radius: 14px; margin-left: auto; }
+  .row.me { background: rgba(88,101,242,.16); box-shadow: inset 0 0 0 2px rgba(88,101,242,.65); }
+  .hl { font-size: 92px; font-weight: 800; letter-spacing: -.035em; line-height: 1.05; }
+
+  /* Scene 2: reveal */
+  .wordmark { font-family: "JetBrains Mono", monospace; font-weight: 700; letter-spacing: -.03em; display: flex; align-items: center; gap: 28px; }
+  .dot { border-radius: 50%; background: var(--green); box-shadow: 0 0 40px rgba(35,165,90,.8); flex: none; }
+  .tiles { display: flex; gap: 44px; }
+  .tile { width: 190px; text-align: center; }
+  .tile img { width: 150px; height: 150px; border-radius: 34px; box-shadow: 0 20px 60px rgba(0,0,0,.45); }
+  .tile div { font-size: 26px; font-weight: 600; margin-top: 18px; color: #dbdee1; }
+
+  /* Scene 3: setup */
+  .caption { left: 0; right: 0; top: 96px; text-align: center; font-size: 64px; font-weight: 800; letter-spacing: -.03em; }
+  #prompt { left: 150px; top: 300px; width: 760px; background: #1a1a1d; border: 2px solid #3a3a40; border-radius: 26px; padding: 34px 38px; }
+  #prompt .lbl { font-size: 22px; color: var(--muted); font-weight: 600; margin-bottom: 18px; }
+  #prompt .txt { font-size: 36px; line-height: 1.38; font-weight: 500; min-height: 200px; }
+  .caret { display: inline-block; width: 3px; height: 40px; background: var(--orange); vertical-align: -6px; margin-left: 2px; }
+  #prompt .send { position: absolute; right: 30px; bottom: 26px; width: 58px; height: 58px; border-radius: 50%; background: var(--orange); display: grid; place-items: center; }
+  #term { left: 990px; top: 300px; width: 780px; height: 500px; background: #0b0c0f; border: 2px solid #2a2c33; border-radius: 22px; overflow: hidden; }
+  #term .bar { height: 50px; background: #16171c; display: flex; align-items: center; gap: 10px; padding-left: 20px; }
+  #term .bar i { width: 14px; height: 14px; border-radius: 50%; display: block; }
+  #term pre { font-family: "JetBrains Mono", monospace; font-size: 25px; line-height: 1.62; padding: 24px 30px; color: #c9cdd4; white-space: pre; }
+  .p { color: #7f8794; } .c { color: var(--text); font-weight: 600; } .ok { color: var(--green); font-weight: 700; }
+
+  /* Scene 4: profile card */
+  #dock { left: 260px; top: 330px; display: flex; flex-direction: column; gap: 26px; background: rgba(43,45,49,.9); padding: 26px; border-radius: 30px; }
+  #dock img { width: 104px; height: 104px; border-radius: 24px; display: block; transition: none; }
+  #card { left: 560px; top: 250px; width: 1100px; height: 610px; background: var(--d1); border-radius: 30px; overflow: hidden; box-shadow: 0 40px 140px rgba(0,0,0,.55); }
+  #card .banner { height: 170px; background: linear-gradient(120deg, #4752c4, #5865f2 55%, #7b5cf0); }
+  #card .pav { position: absolute; left: 56px; top: 92px; width: 160px; height: 160px; border-radius: 50%; border: 10px solid var(--d1); background: #f0b232; display: grid; place-items: center; font-size: 64px; font-weight: 800; color: #1e1f22; }
+  #card .pav::after { content: ""; position: absolute; right: 2px; bottom: 2px; width: 40px; height: 40px; border-radius: 50%; background: var(--green); border: 9px solid var(--d1); }
+  #card .name { position: absolute; left: 64px; top: 270px; font-size: 46px; font-weight: 800; }
+  #card .handle { position: absolute; left: 64px; top: 330px; font-size: 26px; color: var(--muted); }
+  #card .actbox { position: absolute; left: 56px; right: 56px; top: 400px; height: 170px; background: var(--d2); border-radius: 22px; display: flex; align-items: center; gap: 34px; padding: 0 34px; }
+  #card .actbox img { width: 116px; height: 116px; border-radius: 22px; }
+  #card .t1 { font-size: 22px; font-weight: 700; color: var(--muted); letter-spacing: .06em; }
+  #card .t2 { font-size: 40px; font-weight: 800; margin-top: 6px; }
+  #card .t3 { font-size: 27px; color: #b5bac1; margin-top: 4px; }
+  #card .t4 { font-size: 27px; color: var(--green); font-weight: 600; margin-top: 4px; font-variant-numeric: tabular-nums; }
+  #ptr { width: 46px; height: 46px; }
+  #cap4 { top: 96px; }
+
+  /* Scene 5 */
+  .pill { font-family: "JetBrains Mono", monospace; font-size: 34px; background: var(--d2); border: 2px solid #3f4249; border-radius: 999px; padding: 20px 40px; color: var(--text); }
+</style>
+</head>
+<body>
+<div id="stage">
+  <div id="glow"></div>
+
+  <!-- Scene 1 -->
+  <section class="scene" id="s1">
+    <div id="list" class="abs">
+      <h4>ONLINE - 4</h4>
+      <div class="row" data-i="0"><div class="av" style="background:#ed4245">M</div><div><div class="who">mika</div><div class="act">Playing <b>Valorant</b></div></div></div>
+      <div class="row" data-i="1"><div class="av" style="background:#3ba55c">J</div><div><div class="who">jules</div><div class="act">Playing <b>Minecraft</b></div></div></div>
+      <div class="row" data-i="2"><div class="av" style="background:#eb459e">N</div><div><div class="who">noah</div><div class="act">Listening to <b>Spotify</b></div></div></div>
+      <div class="row me" data-i="3"><div class="av" style="background:#f0b232;color:#1e1f22">Y</div><div><div class="who">you</div><div class="act">Playing <b>Claude Code</b></div></div><img class="badge" src="../../assets/logos/claude-code.png"></div>
+    </div>
+    <div class="abs hl" id="h1a" style="left:1010px;top:330px">Your friends<br>are gaming.</div>
+    <div class="abs hl" id="h1b" style="left:1010px;top:580px;color:var(--orange)">You're shipping.</div>
+  </section>
+
+  <!-- Scene 2 -->
+  <section class="scene" id="s2">
+    <div class="abs wordmark" id="wm2" style="left:0;right:0;top:250px;justify-content:center;font-size:120px"><span class="dot" style="width:46px;height:46px"></span>agent-presence</div>
+    <div class="abs" id="sub2" style="left:0;right:0;top:430px;text-align:center;font-size:46px;font-weight:600;color:#dbdee1">Your AI coding tool, live on your Discord profile.</div>
+    <div class="abs tiles" style="left:0;right:0;top:580px;justify-content:center">
+      <div class="tile" data-i="0"><img src="../../assets/logos/claude-code.png"><div>Claude Code</div></div>
+      <div class="tile" data-i="1"><img src="../../assets/logos/codex.png"><div>Codex</div></div>
+      <div class="tile" data-i="2"><img src="../../assets/logos/cursor.png"><div>Cursor</div></div>
+      <div class="tile" data-i="3"><img src="../../assets/logos/antigravity.png"><div>Antigravity</div></div>
+      <div class="tile" data-i="4"><img src="../../assets/logos/windsurf.png"><div>Windsurf</div></div>
+    </div>
+  </section>
+
+  <!-- Scene 3 -->
+  <section class="scene" id="s3">
+    <div class="abs caption" id="cap3">One sentence to your agent. It sets itself up.</div>
+    <div class="abs" id="prompt">
+      <div class="lbl">Message your agent</div>
+      <div class="txt"><span id="typed"></span><span class="caret" id="caret"></span></div>
+      <div class="send"><svg width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="#1a1a1d" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="M12 19V5M5 12l7-7 7 7"/></svg></div>
+    </div>
+    <div class="abs" id="term">
+      <div class="bar"><i style="background:#ff5f57"></i><i style="background:#febc2e"></i><i style="background:#28c840"></i></div>
+      <pre id="termtext"></pre>
+    </div>
+  </section>
+
+  <!-- Scene 4 -->
+  <section class="scene" id="s4">
+    <div class="abs caption" id="cap4">Switch tools. Your status follows in 3 seconds.</div>
+    <div class="abs" id="dock">
+      <img data-id="claude-code" src="../../assets/logos/claude-code.png">
+      <img data-id="cursor" src="../../assets/logos/cursor.png">
+      <img data-id="codex" src="../../assets/logos/codex.png">
+    </div>
+    <div class="abs" id="card">
+      <div class="banner"></div>
+      <div class="pav">Y</div>
+      <div class="name">you</div>
+      <div class="handle">online</div>
+      <div class="actbox">
+        <img class="actimg" data-id="claude-code" src="../../assets/logos/claude-code.png">
+        <img class="actimg" data-id="cursor" src="../../assets/logos/cursor.png">
+        <img class="actimg" data-id="codex" src="../../assets/logos/codex.png">
+        <div><div class="t1">PLAYING</div><div class="t2" id="acttitle">Vibe Coding</div><div class="t3" id="actdetail">Claude Code</div><div class="t4" id="acttime">00:00 elapsed</div></div>
+      </div>
+    </div>
+    <svg id="ptr" class="abs" viewBox="0 0 24 24"><path d="M4 2l16 9.5-7 1.6-3.6 6.9z" fill="#fff" stroke="#111" stroke-width="1.4" stroke-linejoin="round"/></svg>
+  </section>
+
+  <!-- Scene 5 -->
+  <section class="scene" id="s5">
+    <div class="abs wordmark" id="wm5" style="left:0;right:0;top:300px;justify-content:center;font-size:132px"><span class="dot" style="width:50px;height:50px"></span>agent-presence</div>
+    <div class="abs" id="sub5" style="left:0;right:0;top:500px;text-align:center;font-size:48px;font-weight:700">Free and open source.</div>
+    <div class="abs" id="url5" style="left:0;right:0;top:620px;display:flex;justify-content:center"><div class="pill">github.com/tombanaszek1-sketch/agent-presence</div></div>
+    <div class="abs tiles" id="tiles5" style="left:0;right:0;top:800px;justify-content:center;gap:28px"></div>
+  </section>
+</div>
+
+<script>
+const $ = (s) => document.querySelector(s);
+const $$ = (s) => [...document.querySelectorAll(s)];
+const clamp = (x, a = 0, b = 1) => Math.min(b, Math.max(a, x));
+const prog = (t, start, dur) => clamp((t - start) / dur);
+const outCubic = (p) => 1 - Math.pow(1 - p, 3);
+const outBack = (p) => { const c = 1.6; return 1 + (c + 1) * Math.pow(p - 1, 3) + c * Math.pow(p - 1, 2); };
+const inOut = (p) => (p < .5 ? 4 * p * p * p : 1 - Math.pow(-2 * p + 2, 3) / 2);
+const lerp = (a, b, p) => a + (b - a) * p;
+
+// Scene windows: fade in at start, fade out before end (old out, then new in).
+const SCENES = [["#s1", 0, 3.6], ["#s2", 3.6, 7.2], ["#s3", 7.2, 12.0], ["#s4", 12.0, 16.8], ["#s5", 16.8, 20.5]];
+const FADE_IN = 0.28, FADE_OUT = 0.22;
+
+function enter(el, p, dy = 40, scale = 1) {
+  const e = outCubic(p);
+  el.style.opacity = e;
+  el.style.transform = `translateY(${(1 - e) * dy}px) scale(${lerp(scale, 1, e)})`;
+}
+
+const PROMPT = "Set up github.com/tombanaszek1-sketch/agent-presence for me by following its INSTALL.md.";
+const TERM = [
+  [8.95, '<span class="p">$</span> <span class="c">npm install -g agent-presence</span>'],
+  [9.35, 'added 4 packages in 3s'],
+  [9.6, '<span class="p">$</span> <span class="c">agent-presence install</span>'],
+  [9.95, 'Autostart registered: ...\\agent-presence.vbs'],
+  [10.15, 'Started in the background.'],
+  [10.45, '<span class="p">$</span> <span class="c">agent-presence detect</span>'],
+  [10.8, '  Claude Code'],
+  [11.0, '<span class="ok">Shown on Discord: Claude Code</span>'],
+];
+const SWITCHES = [
+  { at: 12.0, id: "claude-code", title: "Vibe Coding", detail: "Claude Code" },
+  { at: 13.6, id: "cursor", title: "Cursor", detail: "Cursor" },
+  { at: 15.2, id: "codex", title: "Codex", detail: "Codex" },
+];
+
+function renderAt(t) {
+  for (const [sel, a, b] of SCENES) {
+    const el = $(sel);
+    const isLast = sel === "#s5";
+    const o = Math.min(prog(t, a, FADE_IN), isLast ? 1 : 1 - prog(t, b - FADE_OUT, FADE_OUT));
+    el.style.opacity = t >= a && t < b + (isLast ? 1 : 0) ? o : 0;
+    el.style.visibility = el.style.opacity > 0 ? "visible" : "hidden";
+  }
+  $("#glow").style.transform = `translate(${Math.sin(t * .35) * 60}px, ${Math.cos(t * .27) * 40}px)`;
+
+  // Scene 1
+  enter($("#list"), prog(t, 0, .45), 30, .96);
+  $$("#s1 .row").forEach((r) => enter(r, prog(t, .2 + r.dataset.i * .28, .35), 26));
+  const me = $("#s1 .row.me");
+  me.style.boxShadow = `inset 0 0 0 2px rgba(88,101,242,${.4 + .4 * prog(t, 1.2, .4)}), 0 0 ${60 * prog(t, 1.2, .4)}px rgba(88,101,242,.45)`;
+  enter($("#h1a"), prog(t, .45, .45), 40);
+  enter($("#h1b"), prog(t, 1.55, .45), 40, .92);
+
+  // Scene 2
+  enter($("#wm2"), prog(t, 3.75, .5), 0, .82);
+  enter($("#sub2"), prog(t, 4.2, .45), 24);
+  $$("#s2 .tile").forEach((el) => {
+    const p = prog(t, 4.7 + el.dataset.i * .16, .4);
+    el.style.opacity = outCubic(p);
+    el.style.transform = `translateY(${(1 - outCubic(p)) * 50}px) scale(${lerp(.6, 1, outBack(p))})`;
+  });
+
+  // Scene 3
+  enter($("#cap3"), prog(t, 7.3, .4), 20);
+  enter($("#prompt"), prog(t, 7.35, .4), 30);
+  const n = Math.floor(PROMPT.length * inOut(prog(t, 7.6, 1.15)));
+  $("#typed").textContent = PROMPT.slice(0, n);
+  const sent = t > 8.85;
+  $("#caret").style.opacity = sent ? 0 : (Math.floor(t * 3) % 2 === 0 || n < PROMPT.length ? 1 : 0);
+  $("#prompt .send").style.transform = `scale(${t > 8.75 && t < 8.95 ? .86 : 1})`;
+  enter($("#term"), prog(t, 7.6, .45), 30);
+  $("#termtext").innerHTML = TERM.filter(([at]) => t >= at).map(([, line]) => line).join("\n");
+
+  // Scene 4
+  enter($("#cap4"), prog(t, 12.1, .4), 20);
+  enter($("#dock"), prog(t, 12.05, .4), 0, .9);
+  enter($("#card"), prog(t, 12.1, .45), 30, .97);
+  let cur = SWITCHES[0];
+  for (const s of SWITCHES) if (t >= s.at) cur = s;
+  const swP = prog(t, cur.at, .35);
+  const actbox = $("#card .actbox");
+  if (cur !== SWITCHES[0]) {
+    actbox.style.opacity = .35 + .65 * outCubic(swP);
+    actbox.style.transform = `translateX(${(1 - outCubic(swP)) * 40}px)`;
+  } else { actbox.style.opacity = 1; actbox.style.transform = "none"; }
+  $$(".actimg").forEach((img) => (img.style.display = img.dataset.id === cur.id ? "block" : "none"));
+  $("#acttitle").textContent = cur.title;
+  $("#actdetail").textContent = cur.detail;
+  const secs = Math.max(0, Math.floor((t - cur.at) * 1));
+  $("#acttime").textContent = `00:0${Math.min(9, secs)} elapsed`;
+  $$("#dock img").forEach((img) => {
+    const active = img.dataset.id === cur.id;
+    img.style.boxShadow = active ? "0 0 0 5px #5865f2, 0 0 40px rgba(88,101,242,.7)" : "none";
+    img.style.opacity = active ? 1 : .55;
+  });
+  // Pointer glides to the next dock icon and clicks it just before each switch.
+  const dockPos = (i) => [260 + 26 + 70, 330 + 26 + i * 130 + 62];
+  const path = [[dockPos(0), 12.0], [dockPos(0), 12.9], [dockPos(1), 13.5], [dockPos(1), 14.5], [dockPos(2), 15.1], [dockPos(2), 17]];
+  let pos = path[0][0];
+  for (let i = 0; i < path.length - 1; i++) {
+    const [[x1, y1], t1] = path[i], [[x2, y2], t2] = path[i + 1];
+    if (t >= t1 && t <= t2) { const p = inOut(prog(t, t1, t2 - t1)); pos = [lerp(x1, x2, p), lerp(y1, y2, p)]; }
+    if (t > t2) pos = [x2, y2];
+  }
+  const clicking = SWITCHES.slice(1).some((s) => t > s.at - .12 && t < s.at + .06);
+  $("#ptr").style.left = `${pos[0]}px`;
+  $("#ptr").style.top = `${pos[1]}px`;
+  $("#ptr").style.transform = `scale(${clicking ? .82 : 1})`;
+  $("#ptr").style.opacity = prog(t, 12.4, .3);
+
+  // Scene 5
+  enter($("#wm5"), prog(t, 16.95, .55), 0, .82);
+  enter($("#sub5"), prog(t, 17.4, .45), 24);
+  enter($("#url5"), prog(t, 17.75, .45), 24);
+  $$("#tiles5 img").forEach((img, i) => {
+    const p = prog(t, 18.15 + i * .1, .35);
+    img.style.opacity = outCubic(p);
+    img.style.transform = `translateY(${(1 - outCubic(p)) * 30}px)`;
+  });
+}
+
+for (const id of ["claude-code", "codex", "cursor", "antigravity", "windsurf"]) {
+  const img = document.createElement("img");
+  img.src = `../../assets/logos/${id}.png`;
+  img.style.cssText = "width:84px;height:84px;border-radius:20px";
+  $("#tiles5").appendChild(img);
+}
+
+window.renderAt = renderAt;
+Promise.all([document.fonts.ready, ...[...document.images].map((i) => i.decode().catch(() => {}))]).then(() => {
+  renderAt(0);
+  window.ready = true;
+});
+</script>
+</body>
+</html>
