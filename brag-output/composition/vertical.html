@@ -1,0 +1,318 @@
+<!doctype html>
+<html>
+<head>
+<meta charset="utf-8">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&family=JetBrains+Mono:wght@400;600;700&display=block" rel="stylesheet">
+<style>
+  :root {
+    --bg: #0d0e12; --d1: #1e1f22; --d2: #2b2d31; --d3: #313338;
+    --text: #f2f3f5; --muted: #949ba4; --blurple: #5865f2; --green: #23a55a; --orange: #e0815f;
+  }
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  html, body { width: 1080px; height: 1920px; overflow: hidden; background: var(--bg); font-family: Inter, sans-serif; color: var(--text); }
+  #stage { position: absolute; inset: 0; }
+  #glow { position: absolute; inset: -300px; background:
+    radial-gradient(700px 700px at 30% 30%, rgba(88,101,242,.26), transparent 70%),
+    radial-gradient(700px 700px at 75% 75%, rgba(217,119,87,.16), transparent 70%); }
+  .scene { position: absolute; inset: 0; opacity: 0; }
+  .abs { position: absolute; }
+
+  /* Captions: kept left of the TikTok button column and above the bottom UI zone. */
+  #caps { left: 70px; width: 860px; top: 1270px; height: 260px; display: flex; align-items: center; justify-content: center; text-align: center; }
+  #captext { font-size: 84px; font-weight: 900; line-height: 1.08; letter-spacing: -.025em; text-shadow: 0 6px 0 rgba(0,0,0,.55), 0 0 40px rgba(0,0,0,.6); }
+  #captext .w { display: inline-block; margin: 0 .12em; }
+  #captext .em { color: var(--orange); }
+
+  /* Scene 1 */
+  #list { left: 70px; top: 300px; width: 940px; background: var(--d2); border-radius: 34px; padding: 40px 34px; box-shadow: 0 40px 120px rgba(0,0,0,.5); }
+  #list h4 { font-size: 26px; letter-spacing: .08em; color: var(--muted); font-weight: 700; margin: 0 0 22px 16px; }
+  .row { display: flex; align-items: center; gap: 26px; height: 140px; padding: 0 20px; border-radius: 22px; }
+  .av { width: 88px; height: 88px; border-radius: 50%; display: grid; place-items: center; font-weight: 800; font-size: 36px; position: relative; flex: none; }
+  .av::after { content: ""; position: absolute; right: -4px; bottom: -4px; width: 28px; height: 28px; border-radius: 50%; background: var(--green); border: 6px solid var(--d2); }
+  .who { font-size: 40px; font-weight: 700; }
+  .act { font-size: 31px; color: var(--muted); margin-top: 4px; }
+  .act b { color: var(--text); font-weight: 600; }
+  .row img.badge { width: 76px; height: 76px; border-radius: 18px; margin-left: auto; }
+  .row.me { background: rgba(88,101,242,.16); }
+
+  /* Scene 2 */
+  .wordmark { font-family: "JetBrains Mono", monospace; font-weight: 700; letter-spacing: -.03em; display: flex; align-items: center; justify-content: center; gap: 22px; left: 0; right: 0; }
+  .dot { border-radius: 50%; background: var(--green); box-shadow: 0 0 40px rgba(35,165,90,.8); flex: none; }
+  #grid { left: 90px; top: 560px; width: 900px; display: flex; flex-wrap: wrap; justify-content: center; gap: 40px 50px; }
+  .tile { width: 250px; text-align: center; }
+  .tile img { width: 210px; height: 210px; border-radius: 48px; box-shadow: 0 24px 70px rgba(0,0,0,.5); }
+  .tile div { font-size: 34px; font-weight: 700; margin-top: 18px; color: #dbdee1; }
+
+  /* Scene 3 */
+  #prompt { left: 70px; top: 300px; width: 940px; height: 380px; background: #1a1a1d; border: 2px solid #3a3a40; border-radius: 32px; padding: 38px 42px; }
+  #prompt .lbl { font-size: 26px; color: var(--muted); font-weight: 600; margin-bottom: 18px; }
+  #prompt .txt { font-size: 42px; line-height: 1.36; font-weight: 500; }
+  .caret { display: inline-block; width: 4px; height: 46px; background: var(--orange); vertical-align: -7px; margin-left: 2px; }
+  #prompt .send { position: absolute; right: 30px; bottom: 28px; width: 68px; height: 68px; border-radius: 50%; background: var(--orange); display: grid; place-items: center; }
+  #term { left: 70px; top: 720px; width: 940px; height: 500px; background: #0b0c0f; border: 2px solid #2a2c33; border-radius: 28px; overflow: hidden; }
+  #term .bar { height: 54px; background: #16171c; display: flex; align-items: center; gap: 10px; padding-left: 22px; }
+  #term .bar i { width: 15px; height: 15px; border-radius: 50%; display: block; }
+  #term pre { font-family: "JetBrains Mono", monospace; font-size: 28px; line-height: 1.6; padding: 22px 30px; color: #c9cdd4; white-space: pre; }
+  .p { color: #7f8794; } .c { color: var(--text); font-weight: 600; } .ok { color: var(--green); font-weight: 700; }
+
+  /* Scene 4 */
+  #card { left: 70px; top: 300px; width: 940px; height: 640px; background: var(--d1); border-radius: 36px; overflow: hidden; box-shadow: 0 40px 140px rgba(0,0,0,.55); }
+  #card .banner { height: 190px; background: linear-gradient(120deg, #4752c4, #5865f2 55%, #7b5cf0); }
+  #card .pav { position: absolute; left: 50px; top: 100px; width: 176px; height: 176px; border-radius: 50%; border: 11px solid var(--d1); background: #f0b232; display: grid; place-items: center; font-size: 70px; font-weight: 800; color: #1e1f22; }
+  #card .pav::after { content: ""; position: absolute; right: 2px; bottom: 2px; width: 44px; height: 44px; border-radius: 50%; background: var(--green); border: 10px solid var(--d1); }
+  #card .name { position: absolute; left: 60px; top: 290px; font-size: 52px; font-weight: 800; }
+  #card .actbox { position: absolute; left: 44px; right: 44px; top: 400px; height: 196px; background: var(--d2); border-radius: 26px; display: flex; align-items: center; gap: 34px; padding: 0 34px; }
+  #card .actbox img { width: 136px; height: 136px; border-radius: 26px; }
+  #card .t1 { font-size: 24px; font-weight: 700; color: var(--muted); letter-spacing: .06em; }
+  #card .t2 { font-size: 46px; font-weight: 800; margin-top: 4px; }
+  #card .t3 { font-size: 31px; color: #b5bac1; margin-top: 2px; }
+  #card .t4 { font-size: 31px; color: var(--green); font-weight: 600; margin-top: 2px; font-variant-numeric: tabular-nums; }
+  #dock { left: 0; right: 0; top: 990px; display: flex; justify-content: center; }
+  #dock .inner { display: flex; gap: 34px; background: rgba(43,45,49,.92); padding: 24px 30px; border-radius: 32px; }
+  #dock img { width: 116px; height: 116px; border-radius: 26px; display: block; }
+  #ptr { width: 56px; height: 56px; }
+
+  /* Scene 5 */
+  .pill { font-family: "JetBrains Mono", monospace; font-size: 27px; background: var(--d2); border: 2px solid #3f4249; border-radius: 999px; padding: 20px 34px; color: var(--text); }
+</style>
+</head>
+<body>
+<div id="stage">
+  <div id="glow"></div>
+
+  <section class="scene" id="s1">
+    <div id="list" class="abs">
+      <h4>ONLINE - 4</h4>
+      <div class="row" data-at="0.3"><div class="av" style="background:#ed4245">M</div><div><div class="who">mika</div><div class="act">Playing <b>Valorant</b></div></div></div>
+      <div class="row" data-at="0.65"><div class="av" style="background:#3ba55c">J</div><div><div class="who">jules</div><div class="act">Playing <b>Minecraft</b></div></div></div>
+      <div class="row" data-at="1.0"><div class="av" style="background:#eb459e">N</div><div><div class="who">noah</div><div class="act">Listening to <b>Spotify</b></div></div></div>
+      <div class="row me" data-at="2.42"><div class="av" style="background:#f0b232;color:#1e1f22">Y</div><div><div class="who">you</div><div class="act">Playing <b>Claude Code</b></div></div><img class="badge" src="../../assets/logos/claude-code.png"></div>
+    </div>
+  </section>
+
+  <section class="scene" id="s2">
+    <div class="abs wordmark" id="wm2" style="top:340px;font-size:92px"><span class="dot" style="width:36px;height:36px"></span>agent-presence</div>
+    <div class="abs" id="grid">
+      <div class="tile" data-at="8.26"><img src="../../assets/logos/claude-code.png"><div>Claude Code</div></div>
+      <div class="tile" data-at="9.14"><img src="../../assets/logos/codex.png"><div>Codex</div></div>
+      <div class="tile" data-at="10.08"><img src="../../assets/logos/windsurf.png"><div>Windsurf</div></div>
+      <div class="tile" data-at="10.94"><img src="../../assets/logos/cursor.png"><div>Cursor</div></div>
+      <div class="tile" data-at="11.78"><img src="../../assets/logos/antigravity.png"><div>Antigravity</div></div>
+    </div>
+    <div class="abs" id="mini" style="left:70px;top:580px;width:940px">
+      <div style="background:var(--d2);border-radius:34px;padding:36px;display:flex;align-items:center;gap:30px;box-shadow:0 40px 120px rgba(0,0,0,.5)">
+        <img src="../../assets/logos/claude-code.png" style="width:150px;height:150px;border-radius:30px">
+        <div><div style="font-size:26px;font-weight:700;color:var(--muted);letter-spacing:.06em">PLAYING</div><div style="font-size:52px;font-weight:800">Vibe Coding</div><div style="font-size:36px;color:#b5bac1">Claude Code</div></div>
+      </div>
+    </div>
+  </section>
+
+  <section class="scene" id="s3">
+    <div class="abs" id="prompt">
+      <div class="lbl">Message your agent</div>
+      <div class="txt"><span id="typed"></span><span class="caret" id="caret"></span></div>
+      <div class="send"><svg width="30" height="30" viewBox="0 0 24 24" fill="none" stroke="#1a1a1d" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="M12 19V5M5 12l7-7 7 7"/></svg></div>
+    </div>
+    <div class="abs" id="term">
+      <div class="bar"><i style="background:#ff5f57"></i><i style="background:#febc2e"></i><i style="background:#28c840"></i></div>
+      <pre id="termtext"></pre>
+    </div>
+  </section>
+
+  <section class="scene" id="s4">
+    <div class="abs" id="card">
+      <div class="banner"></div>
+      <div class="pav">Y</div>
+      <div class="name">you</div>
+      <div class="actbox">
+        <img class="actimg" data-id="claude-code" src="../../assets/logos/claude-code.png">
+        <img class="actimg" data-id="cursor" src="../../assets/logos/cursor.png">
+        <img class="actimg" data-id="codex" src="../../assets/logos/codex.png">
+        <div><div class="t1">PLAYING</div><div class="t2" id="acttitle">Vibe Coding</div><div class="t3" id="actdetail">Claude Code</div><div class="t4" id="acttime">00:00 elapsed</div></div>
+      </div>
+    </div>
+    <div class="abs" id="dock"><div class="inner">
+      <img data-id="claude-code" src="../../assets/logos/claude-code.png">
+      <img data-id="cursor" src="../../assets/logos/cursor.png">
+      <img data-id="codex" src="../../assets/logos/codex.png">
+    </div></div>
+    <svg id="ptr" class="abs" viewBox="0 0 24 24"><path d="M4 2l16 9.5-7 1.6-3.6 6.9z" fill="#fff" stroke="#111" stroke-width="1.4" stroke-linejoin="round"/></svg>
+  </section>
+
+  <section class="scene" id="s5">
+    <div class="abs wordmark" id="wm5" style="top:430px;font-size:100px"><span class="dot" style="width:40px;height:40px"></span>agent-presence</div>
+    <div class="abs" id="sub5" style="left:0;right:0;top:600px;text-align:center;font-size:52px;font-weight:800">Free and open source.</div>
+    <div class="abs" id="url5" style="left:0;right:0;top:720px;display:flex;justify-content:center"><div class="pill">github.com/tombanaszek1-sketch/agent-presence</div></div>
+    <div class="abs" id="tiles5" style="left:0;right:0;top:880px;display:flex;justify-content:center;gap:26px"></div>
+  </section>
+
+  <div class="abs" id="caps"><div id="captext"></div></div>
+</div>
+
+<script>
+const $ = (s) => document.querySelector(s);
+const $$ = (s) => [...document.querySelectorAll(s)];
+const clamp = (x, a = 0, b = 1) => Math.min(b, Math.max(a, x));
+const prog = (t, start, dur) => clamp((t - start) / dur);
+const outCubic = (p) => 1 - Math.pow(1 - p, 3);
+const outBack = (p) => { const c = 1.6; return 1 + (c + 1) * Math.pow(p - 1, 3) + c * Math.pow(p - 1, 2); };
+const inOut = (p) => (p < .5 ? 4 * p * p * p : 1 - Math.pow(-2 * p + 2, 3) / 2);
+const lerp = (a, b, p) => a + (b - a) * p;
+
+// Scene windows follow the voice timeline (voice.timeline.json).
+const SCENES = [["#s1", 0, 3.75], ["#s2", 3.75, 12.62], ["#s3", 12.62, 17.38], ["#s4", 17.38, 21.2], ["#s5", 21.2, 26]];
+const FADE_IN = 0.26, FADE_OUT = 0.2;
+
+function enter(el, p, dy = 40, scale = 1) {
+  const e = outCubic(p);
+  el.style.opacity = e;
+  el.style.transform = `translateY(${(1 - e) * dy}px) scale(${lerp(scale, 1, e)})`;
+}
+
+let GROUPS = [];
+window.setCaptions = (words) => {
+  GROUPS = [];
+  let cur = [];
+  for (const w of words) {
+    cur.push(w);
+    if (w.pageBreakAfter) { GROUPS.push(cur); cur = []; }
+  }
+  if (cur.length) GROUPS.push(cur);
+};
+
+function renderCaptions(t) {
+  const ms = t * 1000;
+  // A group stays up from its first word until the next group starts (max 0.6 s after its last word).
+  let shown = null;
+  for (let i = 0; i < GROUPS.length; i++) {
+    const g = GROUPS[i];
+    const next = GROUPS[i + 1];
+    const until = Math.min(next ? next[0].startMs : Infinity, g[g.length - 1].endMs + 600);
+    if (ms >= g[0].startMs && ms < until) shown = g;
+  }
+  const el = $("#captext");
+  if (!shown) { el.innerHTML = ""; return; }
+  el.innerHTML = shown.map((w) => {
+    const p = outBack(prog(ms, w.startMs, 140));
+    const cls = w.emphasis ? "w em" : "w";
+    return `<span class="${cls}" style="opacity:${ms >= w.startMs ? 1 : .0};transform:scale(${lerp(.7, 1, p)})">${w.text.trim()}</span>`;
+  }).join(" ");
+}
+
+const PROMPT = "Set up github.com/tombanaszek1-sketch/agent-presence for me by following its INSTALL.md.";
+const TERM = [
+  [14.75, '<span class="p">$</span> <span class="c">npm install -g agent-presence</span>'],
+  [15.1, '<span class="p">$</span> <span class="c">agent-presence install</span>'],
+  [15.45, 'Autostart registered: ...\\agent-presence.vbs'],
+  [15.7, 'Started in the background.'],
+  [16.0, '<span class="p">$</span> <span class="c">agent-presence detect</span>'],
+  [16.3, '  Claude Code'],
+  [16.55, '<span class="ok">Shown on Discord: Claude Code</span>'],
+];
+const SWITCHES = [
+  { at: 17.38, id: "claude-code", title: "Vibe Coding", detail: "Claude Code" },
+  { at: 18.3, id: "cursor", title: "Cursor", detail: "Cursor" },
+  { at: 19.4, id: "codex", title: "Codex", detail: "Codex" },
+];
+
+function renderAt(t) {
+  for (const [sel, a, b] of SCENES) {
+    const el = $(sel);
+    const o = Math.min(prog(t, a, FADE_IN), 1 - prog(t, b - FADE_OUT, FADE_OUT));
+    const vis = t >= a && t < b;
+    el.style.opacity = vis ? o : 0;
+    el.style.visibility = vis ? "visible" : "hidden";
+  }
+  $("#glow").style.transform = `translate(${Math.sin(t * .35) * 50}px, ${Math.cos(t * .27) * 60}px)`;
+  renderCaptions(t);
+
+  // Scene 1: rows arrive as the voice lists the friends, "you" lands on "Yours".
+  enter($("#list"), prog(t, 0, .4), 30, .96);
+  $$("#s1 .row").forEach((r) => enter(r, prog(t, +r.dataset.at, .35), 26));
+  const glowP = prog(t, 2.5, .35);
+  $("#s1 .row.me").style.boxShadow = `inset 0 0 0 3px rgba(88,101,242,${.75 * glowP}), 0 0 ${70 * glowP}px rgba(88,101,242,.5)`;
+
+  // Scene 2: wordmark, then the "you" activity card, then tiles called out by the voice.
+  enter($("#wm2"), prog(t, 3.85, .5), 0, .8);
+  const miniIn = prog(t, 4.6, .45), miniOut = prog(t, 8.0, .25);
+  $("#mini").style.opacity = outCubic(miniIn) * (1 - miniOut);
+  $("#mini").style.transform = `translateY(${(1 - outCubic(miniIn)) * 40 - miniOut * 30}px)`;
+  $("#mini").style.visibility = miniOut >= 1 ? "hidden" : "visible";
+  $$("#grid .tile").forEach((el) => {
+    const p = prog(t, +el.dataset.at - .08, .38);
+    el.style.opacity = outCubic(p);
+    el.style.transform = `translateY(${(1 - outCubic(p)) * 50}px) scale(${lerp(.55, 1, outBack(p))})`;
+  });
+
+  // Scene 3
+  enter($("#prompt"), prog(t, 12.7, .4), 30);
+  const n = Math.floor(PROMPT.length * inOut(prog(t, 12.95, 1.35)));
+  $("#typed").textContent = PROMPT.slice(0, n);
+  $("#caret").style.opacity = t > 14.55 ? 0 : (n < PROMPT.length || Math.floor(t * 3) % 2 === 0 ? 1 : 0);
+  $("#prompt .send").style.transform = `scale(${t > 14.45 && t < 14.65 ? .84 : 1})`;
+  enter($("#term"), prog(t, 12.9, .45), 30);
+  $("#termtext").innerHTML = TERM.filter(([at]) => t >= at).map(([, line]) => line).join("\n");
+
+  // Scene 4
+  enter($("#card"), prog(t, 17.42, .45), 30, .97);
+  enter($("#dock"), prog(t, 17.5, .4), 30);
+  let cur = SWITCHES[0];
+  for (const s of SWITCHES) if (t >= s.at) cur = s;
+  const swP = prog(t, cur.at, .32);
+  const actbox = $("#card .actbox");
+  if (cur !== SWITCHES[0]) {
+    actbox.style.opacity = .35 + .65 * outCubic(swP);
+    actbox.style.transform = `translateX(${(1 - outCubic(swP)) * 40}px)`;
+  } else { actbox.style.opacity = 1; actbox.style.transform = "none"; }
+  $$(".actimg").forEach((img) => (img.style.display = img.dataset.id === cur.id ? "block" : "none"));
+  $("#acttitle").textContent = cur.title;
+  $("#actdetail").textContent = cur.detail;
+  $("#acttime").textContent = `00:0${Math.min(9, Math.max(0, Math.floor(t - cur.at)))} elapsed`;
+  $$("#dock img").forEach((img) => {
+    const active = img.dataset.id === cur.id;
+    img.style.boxShadow = active ? "0 0 0 6px #5865f2, 0 0 44px rgba(88,101,242,.7)" : "none";
+    img.style.opacity = active ? 1 : .55;
+  });
+  // Dock icons: 116px wide, 34px gap, centred; pointer tip lands inside each icon.
+  const dockX = (i) => 540 - (3 * 116 + 2 * 34) / 2 + i * 150 + 70;
+  const dockY = 990 + 24 + 70;
+  const path = [[dockX(0), 17.4], [dockX(0), 17.7], [dockX(1), 18.2], [dockX(1), 18.85], [dockX(2), 19.3], [dockX(2), 22]];
+  let x = path[0][0];
+  for (let i = 0; i < path.length - 1; i++) {
+    const [x1, t1] = path[i], [x2, t2] = path[i + 1];
+    if (t >= t1 && t <= t2) x = lerp(x1, x2, inOut(prog(t, t1, t2 - t1)));
+    if (t > t2) x = x2;
+  }
+  const clicking = SWITCHES.slice(1).some((s) => t > s.at - .12 && t < s.at + .06);
+  $("#ptr").style.left = `${x}px`;
+  $("#ptr").style.top = `${dockY}px`;
+  $("#ptr").style.transform = `scale(${clicking ? .82 : 1})`;
+  $("#ptr").style.opacity = prog(t, 17.6, .25);
+
+  // Scene 5
+  enter($("#wm5"), prog(t, 21.3, .55), 0, .8);
+  enter($("#sub5"), prog(t, 21.6, .45), 24);
+  enter($("#url5"), prog(t, 22.9, .45), 24);
+  $$("#tiles5 img").forEach((img, i) => {
+    const p = prog(t, 23.3 + i * .1, .35);
+    img.style.opacity = outCubic(p);
+    img.style.transform = `translateY(${(1 - outCubic(p)) * 30}px)`;
+  });
+}
+
+for (const id of ["claude-code", "codex", "windsurf", "cursor", "antigravity"]) {
+  const img = document.createElement("img");
+  img.src = `../../assets/logos/${id}.png`;
+  img.style.cssText = "width:104px;height:104px;border-radius:24px";
+  $("#tiles5").appendChild(img);
+}
+
+window.renderAt = renderAt;
+Promise.all([document.fonts.ready, ...[...document.images].map((i) => i.decode().catch(() => {}))]).then(() => {
+  renderAt(0);
+  window.ready = true;
+});
+</script>
+</body>
+</html>

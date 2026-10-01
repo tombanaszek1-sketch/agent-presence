@@ -1,1 +1,4 @@
 My friends' Discord status says Valorant. Mine says Claude Code now. agent-presence shows whichever AI coding tool you're in (Claude Code, Codex, Cursor, Antigravity, Windsurf) as your Discord activity, and you set it up by sending your agent one sentence: github.com/tombanaszek1-sketch/agent-presence
+
+TikTok:
+My friends' Discord says Valorant. Mine says Claude Code. Free tool, link in the GitHub repo: github.com/tombanaszek1-sketch/agent-presence #claudecode #cursor #discord #coding #vibecoding
