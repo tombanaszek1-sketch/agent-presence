@@ -14,8 +14,8 @@ all major agents and editors, installable by asking your coding agent to set it 
 In scope:
 - Activity = tool name + logo + elapsed time. No project names, no working/idle state.
 - Windows, macOS, Linux.
-- Initial tools: Claude (desktop app), Claude Code (CLI), ChatGPT (desktop app),
-  Codex (CLI and app), Cursor, Antigravity, Windsurf.
+- Initial tools: Claude (desktop app), Claude Code (CLI), Codex (CLI and app), Cursor,
+  Antigravity, Windsurf.
 - Install via `npm i -g agent-presence` + `agent-presence install` (autostart), plus an
   agent-readable `INSTALL.md` and a copy-paste prompt in the README.
 
@@ -49,7 +49,7 @@ One entry per tool, ordered by default priority (first = highest):
   "id": "claude-code",
   "name": "Claude Code",
   "discordAppId": "<snowflake>",
-  "largeImage": "logo",
+  "image": "claude-code",
   "match": {
     "win32":  [{ "process": "claude.exe" }],
     "darwin": [{ "process": "claude" }],
@@ -62,12 +62,19 @@ A match rule has `process` (case-insensitive exact executable name) and optional
 `cmdline` (regex tested against the full command line, for tools running under a shared
 runtime such as `node`). An entry matches if any rule for the current OS matches.
 
-Default priority: CLI agents first (Claude Code, Codex CLI), then agent editors
-(Cursor, Antigravity, Windsurf), then desktop chat apps (Claude, ChatGPT).
+Default priority: CLI agents first (Claude Code, Codex), then agent editors
+(Cursor, Antigravity, Windsurf), then the Claude desktop app.
 
-Each tool has its own Discord application (created by the maintainer in the Discord
-Developer Portal), because Discord shows the application name as the activity name.
-App IDs are public and committed to the repo; users never touch the portal.
+Discord shows the application name as the activity name, so tools get their own Discord
+application where Discord allows the name: Codex, Cursor, Antigravity, Windsurf.
+Discord rejects any application name containing "Claude", so Claude and Claude Code
+share a neutral application named "Vibe Coding"; `statusDisplayType: DETAILS` makes the
+member list show the tool name from `details` instead. App IDs are public and committed
+to the repo; users never touch the portal.
+
+`image` is a file name in `assets/logos/`. The activity uses its raw GitHub URL as
+`largeImageKey` (Discord accepts external image URLs), so no Rich Presence art assets
+need to be uploaded per application.
 
 ### Detector
 
@@ -88,8 +95,11 @@ from `config.priority` if set, otherwise registry order. Disabled IDs are ignore
 - Holds at most one Discord client, bound to the current tool's app ID.
 - When the selected tool changes: destroy the old client, connect with the new app ID,
   set activity. When nothing is selected: clear activity and disconnect.
-- Activity: `details` = tool name, `largeImageKey` = registry image, `startTimestamp` =
-  time the tool was first detected in this run (kept while the same tool stays selected).
+- Activity: `details` = tool name, `largeImageKey` = logo URL, `largeImageText` = tool
+  name, `statusDisplayType` = DETAILS, `startTimestamp` = time the tool was first
+  detected in this run (kept while the same tool stays selected).
+- Switching between two tools that share an app ID (Claude, Claude Code) only updates
+  the activity, without reconnecting.
 - If Discord is not running or the pipe closes: log once, retry on the next tick. No crash.
 
 ### Config
@@ -97,7 +107,7 @@ from `config.priority` if set, otherwise registry order. Disabled IDs are ignore
 Optional file `~/.config/agent-presence/config.json` (Windows: `%APPDATA%\agent-presence\`):
 
 ```json
-{ "disabled": ["chatgpt"], "priority": ["cursor", "claude-code"], "pollSeconds": 15 }
+{ "disabled": ["claude"], "priority": ["cursor", "claude-code"], "pollSeconds": 15 }
 ```
 
 Unknown keys are ignored; invalid JSON is logged and defaults are used.
@@ -152,8 +162,6 @@ asks for reports.
 
 ## Maintainer setup (manual)
 
-1. Create 7 applications in the Discord Developer Portal, named exactly as shown
-   ("Claude", "Claude Code", "ChatGPT", "Codex", "Cursor", "Antigravity", "Windsurf"),
-   upload each logo as rich presence asset `logo`, copy the application IDs into
-   `apps.json`.
+1. Done: Discord applications "Vibe Coding", "Codex", "Cursor", "Antigravity",
+   "Windsurf". Their IDs go into `apps.json`.
 2. `npm login` and `npm publish` once the tool works.
